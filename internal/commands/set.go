@@ -1,10 +1,8 @@
 package commands
 
 import (
-	"errors"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/rotemhoresh/recall/internal/recall"
 	"github.com/spf13/cobra"
@@ -23,13 +21,9 @@ var setCmd = &cobra.Command{
 			return err
 		}
 		if len(args) == 0 {
-			msg, err := fileInput(recalls.Path())
+			msg, err := fileInput(recalls.Path(), "")
 			if err != nil {
 				return err
-			}
-			msg = strings.Trim(msg, " \n")
-			if strings.Contains(msg, "\n") {
-				return errors.New("newline characters are not allowed inside a recall")
 			}
 			recalls.Set(msg)
 		} else {
@@ -39,16 +33,22 @@ var setCmd = &cobra.Command{
 	},
 }
 
-func fileInput(path string) (string, error) {
+func fileInput(path, initial string) (string, error) {
 	// TODO: add option for a config file to allow editor selection etc.
-	cmd := exec.Command("nvim", path+"/EDITMSG")
+	filePath := path + "/EDITMSG"
+
+	err := os.WriteFile(filePath, []byte(initial), 0o644)
+	if err != nil {
+		return "", err
+	}
+	cmd := exec.Command("nvim", filePath)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return "", err
 	}
-	f, err := os.ReadFile(path + "/EDITMSG")
+	f, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}

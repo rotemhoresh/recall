@@ -28,6 +28,7 @@ func init() {
 	rootCmd.AddCommand(
 		setCmd,
 		rmCmd,
+		modCmd,
 	)
 }
 

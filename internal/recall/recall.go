@@ -94,7 +94,7 @@ func (r *Recalls) Msg() (string, error) {
 	if r.cwdIndex == -1 {
 		return "", errors.New("no recall set for this directory")
 	}
-	return r.recalls[r.cwdIndex].Msg, nil
+	return r.recalls[r.cwdIndex].Format(), nil
 }
 
 func (r *Recalls) Path() string {

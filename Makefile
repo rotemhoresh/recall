@@ -1,2 +1,2 @@
 build:
-	go build -o ~/.local/bin/recall ./cmd/recall.go
+	go build -o $(HOME)/.local/bin/recall ./cmd/recall/main.go

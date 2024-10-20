@@ -1,7 +1,8 @@
-package path
+package pathutils
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 )
 
@@ -17,4 +18,13 @@ func DirExists(path string) (bool, error) {
 		return false, err
 	}
 	return stat.IsDir(), nil
+}
+
+// returns full cwd
+func Cwd() (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Abs(cwd)
 }

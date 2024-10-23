@@ -15,9 +15,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		if msg, err := recalls.Msg(); err != nil {
-			fmt.Println(err)
-		} else {
+		if msg := recalls.Msg(); msg != "" {
 			fmt.Println(msg)
 		}
 		return recalls.Write()

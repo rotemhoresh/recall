@@ -7,7 +7,7 @@ import (
 
 var rmCmd = &cobra.Command{
 	Use:   "rm",
-	Short: "makes sure there is no recall for cwd.",
+	Short: "remove recall set for cwd.",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		recalls, err := recall.Parse()

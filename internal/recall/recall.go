@@ -3,10 +3,10 @@ package recall
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -80,7 +80,7 @@ func (r *Recalls) Set(msg string) {
 	recall := Recall{
 		Time: time.Now(),
 		Dir:  r.cwd,
-		Msg:  msg,
+		Msg:  strings.TrimSpace(msg),
 	}
 	if r.cwdIndex == -1 {
 		r.recalls = append(r.recalls, recall)
@@ -90,11 +90,13 @@ func (r *Recalls) Set(msg string) {
 	}
 }
 
-func (r *Recalls) Msg() (string, error) {
+// Msg returns the recall associated with cwd.
+// If none is set, it will return an empty string.
+func (r *Recalls) Msg() string {
 	if r.cwdIndex == -1 {
-		return "", errors.New("no recall set for this directory")
+		return ""
 	}
-	return r.recalls[r.cwdIndex].Format(), nil
+	return r.recalls[r.cwdIndex].Format()
 }
 
 func (r *Recalls) Path() string {

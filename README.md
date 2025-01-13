@@ -13,7 +13,7 @@ Run by running without any subcommand.
 #### Example
 
 ```bash
-recall
+❯ recall
 ```
 
 ```
@@ -28,7 +28,7 @@ Batch add notes to the recall list of the current working directory.
 #### Example
 
 ```bash
-recall add "Was doing that thing" "Also, do the other thing"
+❯ recall add "Was doing that thing" "Also, do the other thing"
 ```
 
 ### Remove
@@ -38,7 +38,7 @@ Batch remove notes by index from the recall list of the current working director
 #### Example
 
 ```bash
-recall 
+❯ recall 
 ```
 
 ```
@@ -49,9 +49,9 @@ recall
 ```
 
 ```bash
-recall rm 1 3
+❯ recall rm 1 3
 
-recall
+❯ recall
 ```
 
 ```

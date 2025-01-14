@@ -27,7 +27,7 @@ Batch add notes to the recall list of the current working directory.
 
 #### Hyperlinks
 
-Valid paths surrounded by ticks (`) will be printed ([List](README#List) as hyperlinks, if the your terminal emulator supports this.
+Valid paths surrounded by ticks (`) will be printed ([list](#List)) as hyperlinks, if the your terminal emulator supports this.
 
 #### Example
 
@@ -54,7 +54,9 @@ Batch remove notes by index from the recall list of the current working director
 
 ```bash
 ❯ recall rm 1 3
+```
 
+```bash
 ❯ recall
 ```
 

@@ -1,7 +1,11 @@
+#![feature(let_chains)]
+
 use std::{collections::BTreeMap, env, fs, path::PathBuf};
 
 use anyhow::{Context, anyhow};
 use clap::{Parser, Subcommand};
+use regex::{Captures, Regex};
+use supports_hyperlinks::Stream;
 
 const FILE_NAME: &str = ".recalls";
 
@@ -120,7 +124,24 @@ fn main() -> anyhow::Result<()> {
         },
         None => {
             if let Some(list) = recalls.get_list()? {
+                let re_path = Regex::new(r"`([^`]+)`").unwrap();
+
                 for (idx, line) in list.iter().enumerate() {
+                    let line = re_path.replace_all(line, |c: &Captures| {
+                        let path = c.get(1).unwrap().as_str();
+
+                        // Since we can't really fail here, we will
+                        // just use an the unhyperlinked path if the
+                        // hyperlink generation failed.
+                        if supports_hyperlinks::on(Stream::Stdout)
+                            && let Ok(hyperlink) = hyperlink(path)
+                        {
+                            println!("Yay printing {path} as hyperlink");
+                            hyperlink
+                        } else {
+                            path.to_owned()
+                        }
+                    });
                     println!("[{idx}] {line}");
                 }
             }
@@ -128,4 +149,54 @@ fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+/// Convert a path to a hyperlink, which includes:
+///
+/// - resolving to an absolute path.
+/// - making sure that the path exists.
+/// - wrapping in a hyperlink ANSI escape codes.
+///
+/// Which makes a result that is the original path, which links to the
+/// resolved absolute path.
+#[allow(clippy::iter_nth_zero)]
+fn hyperlink(path: &str) -> anyhow::Result<String> {
+    // Inspired by coreutils' `ls` hyperlink feature.
+    // https://github.com/coreutils/coreutils/blob/0032e336e50c86186a01dbfa77364bc9c12235c1/src/ls.c#L4774
+
+    // fs::canonicalize can't handle tilde (i.e., converting it to home dir),
+    // thus we need to resolve `~`.
+    let mut resolved_path = path.to_owned(); // OPTIMIZE: is there a way without cloning?
+    // This is necessary so we won't expand a path that starts with a file
+    // or a directory that starts with a tilde, as it is a valid character
+    // in a file name.
+    if resolved_path.starts_with("~/") || resolved_path == "~" {
+        resolved_path.replace_range(
+            0..1, // OPTIMIZE: is there a better way to do this?
+            dirs::home_dir()
+                .ok_or_else(|| anyhow!("failed to get home dir"))?
+                .to_str()
+                .ok_or_else(|| anyhow!("failed to convert cwd to string"))?,
+        )
+    }
+
+    let h = gethostname::gethostname();
+    let hostname = h
+        .to_str()
+        .ok_or_else(|| anyhow!("failed to convert host name to str"))?;
+    let n = fs::canonicalize(resolved_path).with_context(|| "failed to make path absolute")?;
+    let absolute_path = n
+        .to_str()
+        .ok_or_else(|| anyhow!("failed to convert path to str"))?;
+
+    let separator = if absolute_path.chars().nth(0).is_some_and(|c| c != '/') {
+        "/"
+    } else {
+        ""
+    };
+
+    Ok(format!(
+        "\x1b]8;;file://{}{}{}\x07{}\x1b]8;;\x07",
+        hostname, separator, absolute_path, path
+    ))
 }

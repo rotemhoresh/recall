@@ -25,10 +25,14 @@ Run by running without any subcommand.
 
 Batch add notes to the recall list of the current working directory.
 
+#### Hyperlinks
+
+Valid paths surrounded by ticks (`) will be printed ([List](README#List) as hyperlinks, if the your terminal emulator supports this.
+
 #### Example
 
 ```bash
-❯ recall add "Was doing that thing" "Also, do the other thing"
+❯ recall add "Chech this out: `./Cargo.toml`" "Also, do the other thing"
 ```
 
 ### Remove

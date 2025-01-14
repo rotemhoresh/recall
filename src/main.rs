@@ -136,7 +136,6 @@ fn main() -> anyhow::Result<()> {
                         if supports_hyperlinks::on(Stream::Stdout)
                             && let Ok(hyperlink) = hyperlink(path)
                         {
-                            println!("Yay printing {path} as hyperlink");
                             hyperlink
                         } else {
                             path.to_owned()

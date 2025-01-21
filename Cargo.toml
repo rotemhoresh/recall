@@ -2,7 +2,7 @@
 name = "recall"
 version = "0.1.0"
 edition = "2024"
-authors = ["Rotem Horesh <horesh.rotem@gmail.com>"]
+authors = ["Rotem Horesh (rotmh)"]
 license = "MIT"
 
 [dependencies]
@@ -15,3 +15,6 @@ regex = "1.11"
 supports-hyperlinks = "3.1.0"
 gethostname = "0.5.0"
 
+[profile.release]
+lto = "fat"
+codegen-units = 1

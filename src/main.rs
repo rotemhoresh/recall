@@ -2,7 +2,7 @@
 
 use std::{collections::BTreeMap, env, fs, path::PathBuf};
 
-use anyhow::{Context, anyhow};
+use anyhow::Context;
 use clap::{Parser, Subcommand};
 use regex::{Captures, Regex};
 use supports_hyperlinks::Stream;
@@ -32,7 +32,7 @@ impl Recalls {
         let cwd = self
             .cwd
             .to_str()
-            .ok_or_else(|| anyhow!("failed to convert cwd to string"))?
+            .with_context(|| "failed to convert cwd to string")?
             .to_owned();
 
         self.recalls.entry(cwd).or_default().extend(notes);
@@ -44,7 +44,7 @@ impl Recalls {
         let cwd = self
             .cwd
             .to_str()
-            .ok_or_else(|| anyhow!("failed to convert cwd to string"))?;
+            .with_context(|| "failed to convert cwd to string")?;
 
         if let Some(list) = self.recalls.get_mut(cwd) {
             indexes.dedup();
@@ -70,7 +70,7 @@ impl Recalls {
         let cwd = self
             .cwd
             .to_str()
-            .ok_or_else(|| anyhow!("failed to convert cwd to string"))?;
+            .with_context(|| "failed to convert cwd to string")?;
 
         Ok(self.recalls.get(cwd))
     }
@@ -102,7 +102,7 @@ enum Command {
 fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     let path = dirs::home_dir()
-        .ok_or_else(|| anyhow!("failed to get home dir"))
+        .with_context(|| "failed to get home dir")
         .map(|mut p| {
             p.push(FILE_NAME);
             p
@@ -138,7 +138,7 @@ fn main() -> anyhow::Result<()> {
                         {
                             hyperlink
                         } else {
-                            path.to_owned()
+                            format!("`{path}`")
                         }
                     });
                     println!("[{idx}] {line}");
@@ -173,20 +173,20 @@ fn hyperlink(path: &str) -> anyhow::Result<String> {
         resolved_path.replace_range(
             0..1, // OPTIMIZE: is there a better way to do this?
             dirs::home_dir()
-                .ok_or_else(|| anyhow!("failed to get home dir"))?
+                .with_context(|| "failed to get home dir")?
                 .to_str()
-                .ok_or_else(|| anyhow!("failed to convert cwd to string"))?,
+                .with_context(|| "failed to convert path to string")?,
         )
     }
 
     let h = gethostname::gethostname();
     let hostname = h
         .to_str()
-        .ok_or_else(|| anyhow!("failed to convert host name to str"))?;
+        .with_context(|| "failed to convert host name to str")?;
     let n = fs::canonicalize(resolved_path).with_context(|| "failed to make path absolute")?;
     let absolute_path = n
         .to_str()
-        .ok_or_else(|| anyhow!("failed to convert path to str"))?;
+        .with_context(|| "failed to convert path to str")?;
 
     let separator = if absolute_path.chars().nth(0).is_some_and(|c| c != '/') {
         "/"
